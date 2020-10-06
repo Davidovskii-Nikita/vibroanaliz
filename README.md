@@ -12,7 +12,7 @@
 
 Электрическая схема:
 
-![ПЭС устройства](https://github.com/Davidovskii-Nikita/vibroanaliz/blob/master/docs/%D0%9F%D0%AD%D0%A1.png)
+![ПЭС устройства](https://github.com/Davidovskii-Nikita/vibroanaliz/blob/master/docs/%D0%AD%D0%BB%D0%B5%D0%BA%D1%82.%20%D1%81%D1%85%D0%B5%D0%BC%D0%B0.jpg)
 
 Для прошивки нужно перейти на сайт http://esp-01_black.local/ или набрать в браузере IP-адрес. После подачи питания *ESP-01* подключится к WiFi сети и на корпусе загорится синий светодиод, сигнализирующий о корректной работе устройства.
 
