@@ -9,6 +9,7 @@
 #include <ESP8266HTTPClient.h>
 WiFiUDP ntpUDP;
 
+#include <ESP8266HTTPUpdateServer.h>
 //------------------------------------------------------------------------------------------------------------------
 NTPClient timeClient(ntpUDP, "by.pool.ntp.org", 10800);// выбор сервера NTP("by.pool.ntp.org"), cмещение пояса(10800)
 
@@ -31,12 +32,15 @@ float q = 1;  // скорость изменения значений
 // Настройка моды
 const int range=100;// объем колличества значений в выборке
 
-const char* ssid = "Davidovskii"; //имя Wi-Fi сети
-const char* password = "4054414LabU";  //пароль cети
-const char* host ="188.166.6.114";// адрес хоста
-String URL="http://188.166.6.114:80/nkvm";// адрес куда отправляются POST запросы
+const char* ssid = "SSID"; //имя Wi-Fi сети
+const char* password = "PASS";  //пароль cети
+const char* host ="host.com";// адрес хоста
+String URL="host.com/data";// адрес куда отправляются POST запросы
+const char* update_path = "/firmware";
+const char* update_username = "admin";// логин для OTA-обновлений
+const char* update_password = "admin";// пароль для OTA-обновлений
 const char* host_OTA = "esp-01_black";// название устройства в локальной сети для прошивки через браузер 
-// в виде http://esp-01_black.local/ 
+// в виде http://esp-01_black.local/firmware/ 
 
 const uint16_t Full_Scale_Range=4;// выбор диапазона измерений акселерометра +-2,+-4,+-8,+-16
 //-----------------------------------------------------------------------------------------------------------------
@@ -66,9 +70,12 @@ double Ax, Ay, Az, T;
 String MAC;
 double val_filter;
 float r1,r2,r3,r4,r5,r6,r7,h;
-ESP8266WebServer server(80);
-const char* serverIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
 
+size_t capacity;
+
+ESP8266WebServer httpServer(80);
+ESP8266HTTPUpdateServer httpUpdater;
+  
 void setup() 
 {
   init_moda(Full_Scale_Range);
@@ -93,60 +100,32 @@ void setup()
   Serial.begin(9600);
   WiFi.mode(WIFI_AP_STA);
   delay(10);
-  WiFi.begin(ssid, password);
-  if (WiFi.waitForConnectResult() == WL_CONNECTED) 
+ 
+
+  while (WiFi.waitForConnectResult() != WL_CONNECTED) 
   {
-    MDNS.begin(host_OTA);
-    server.on("/", HTTP_GET, []() {
-      server.sendHeader("Connection", "close");
-      server.send(200, "text/html", serverIndex);
-    });
-    server.on("/update", HTTP_POST, []() {
-      server.sendHeader("Connection", "close");
-      server.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
-      ESP.restart();
-    }, []() {
-      HTTPUpload& upload = server.upload();
-      if (upload.status == UPLOAD_FILE_START) {
-        Serial.setDebugOutput(true);
-        WiFiUDP::stopAll();
-        Serial.printf("Update: %s\n", upload.filename.c_str());
-        uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-        if (!Update.begin(maxSketchSpace)) { //start with max available size
-          Update.printError(Serial);
-        }
-      } else if (upload.status == UPLOAD_FILE_WRITE) {
-        if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
-          Update.printError(Serial);
-        }
-      } else if (upload.status == UPLOAD_FILE_END) {
-        if (Update.end(true)) { //true to set the size to the current progress
-          Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
-        } else {
-          Update.printError(Serial);
-        }
-        Serial.setDebugOutput(false);
-      }
-      yield();
-    });
-    server.begin();
-    MDNS.addService("http", "tcp", 80);
-    Serial.printf("Ready! http://%s.local \n", host_OTA);
-  } 
-  else 
-  {
-    Serial.println("WiFi Failed. Restart...");
-    ESP.restart();
+    WiFi.begin(ssid, password);
+    Serial.println("WiFi failed, retrying.");
+    delay(100);
   }
+
+  MDNS.begin(host_OTA);
+
+  httpUpdater.setup(&httpServer, update_path, update_username, update_password);
+  httpServer.begin();
+
+  MDNS.addService("http", "tcp", 80);
   
   MPU6050_Init();
   timeClient.begin();
   MAC=WiFi.macAddress();
+  capacity= 2*JSON_ARRAY_SIZE(RANGE_T ) + 2*JSON_ARRAY_SIZE(RANGE_A) + JSON_OBJECT_SIZE(5) + 3500;
+
 }
 
 void loop() 
 {
-  server.handleClient();
+  httpServer.handleClient();
   MDNS.update();
   filter();
   if (millis() - timer_A >= PERIOD_A) 
@@ -173,6 +152,14 @@ void loop()
       opros_temp_time[countT]=r_c_time;
       opros_temp[countT]=Temp;
       countT++;
+      /*
+      Serial.print(capacity);
+      Serial.println('\t');
+      Serial.print(ESP.getMaxFreeBlockSize());
+      Serial.println('\t');
+      Serial.print(countT);
+      Serial.println('\t');
+      */
      }
   }
   if(countA==RANGE_A)
@@ -205,8 +192,10 @@ void post_json(void)
  if (client.connect(host,80))
       {
         String buffer;
-        DynamicJsonDocument jsonDocument(7000);
+        DynamicJsonDocument jsonDocument(capacity);
         jsonDocument["MAC"] = MAC;
+        jsonDocument["CAP"] = capacity;
+        jsonDocument["MEM"] = ESP.getMaxFreeBlockSize();
         JsonArray Axel_time = jsonDocument.createNestedArray("Axel_time");
         JsonArray Axel = jsonDocument.createNestedArray("Axel");
         JsonArray Temp_time = jsonDocument.createNestedArray("Temp_time");
