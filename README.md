@@ -19,7 +19,7 @@
 ---
 
 ### Как работает код?
-Файл [main.ino](https://github.com/Davidovskii-Nikita/vibroanaliz/blob/master/main_sketch/main.ino), находящийся в папке *main_sketch*, содержит в себе прошивку для ESP-01 (1 Mb *"черная"*). Код выполняет несколько функций: 
+Файл [main.ino](https://github.com/Davidovskii-Nikita/vibroanaliz/blob/master/main_sketch/main.ino), содержит в себе прошивку для ESP-01 (1 Mb *"черная"*). Код выполняет несколько функций: 
 * **Собирает данные с датчика акселерометра и температуры (плата MPU6050).**
 
 По протоколу I2C.
