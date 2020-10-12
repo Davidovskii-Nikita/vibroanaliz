@@ -40,7 +40,7 @@ const char* update_path = "/firmware";
 const char* update_username = "admin";// логин для OTA-обновлений
 const char* update_password = "admin";// пароль для OTA-обновлений
 const char* host_OTA = "esp-01_black";// название устройства в локальной сети для прошивки через браузер 
-// в виде http://esp-01_black.local/firmware/ 
+// в виде http://esp-01_black.local/firmware
 
 const uint16_t Full_Scale_Range=4;// выбор диапазона измерений акселерометра +-2,+-4,+-8,+-16
 //-----------------------------------------------------------------------------------------------------------------
