@@ -178,9 +178,9 @@ double filter()
   double Z=Read_RawValue_AXEL(MPU6050SlaveAddress, MPU6050_REGISTER_ACCEL_XOUT_H);
   // Для того, что бы включить фильтр, требуестья закоментировать 
   //строку ниже,и раскоментировать cтроку с интересующим фитром.
-  //val_filter=Z;
+  val_filter=Z;
   //val_filter=filter_moda(Z);
-  val_filter=filter_kalman(Z);
+  //val_filter=filter_kalman(Z);
  // val_filter=running_midle(Z);
   return val_filter;
 }
