@@ -35,12 +35,12 @@ const int range=100;// объем колличества значений в в�
 const char* ssid = "SSID"; //имя Wi-Fi сети
 const char* password = "PASS";  //пароль cети
 const char* host ="host.com";// адрес хоста
-String URL="host.com/data";// адрес куда отправляются POST запросы
 const char* update_path = "/firmware";
-const char* update_username = "admin";// логин для OTA-обновлений
-const char* update_password = "admin";// пароль для OTA-обновлений
+const char* update_username = "admin";
+const char* update_password = "admin";
+String URL="host.com/data";// адрес куда отправляются POST запросы
 const char* host_OTA = "esp-01_black";// название устройства в локальной сети для прошивки через браузер 
-// в виде http://esp-01_black.local/firmware
+// в виде http://esp-01_black.local/ 
 
 const uint16_t Full_Scale_Range=4;// выбор диапазона измерений акселерометра +-2,+-4,+-8,+-16
 //-----------------------------------------------------------------------------------------------------------------
@@ -178,9 +178,9 @@ double filter()
   double Z=Read_RawValue_AXEL(MPU6050SlaveAddress, MPU6050_REGISTER_ACCEL_XOUT_H);
   // Для того, что бы включить фильтр, требуестья закоментировать 
   //строку ниже,и раскоментировать cтроку с интересующим фитром.
-  val_filter=Z;
+  //val_filter=Z;
   //val_filter=filter_moda(Z);
-  //val_filter=filter_kalman(Z);
+  val_filter=filter_kalman(Z);
  // val_filter=running_midle(Z);
   return val_filter;
 }
