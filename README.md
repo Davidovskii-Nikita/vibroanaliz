@@ -144,12 +144,6 @@ const char* password = "PASS";      //пароль cети
 const char* host ="host.com";       // адрес хоста
 String URL="http://host.com/data";  //адрес, куда отправляются POST запросы
 ~~~
-И выбрать логин и пароль для защиты OTA-обновлений:
-~~~ C
-const char* update_path = "/firmware";
-const char* update_username = "admin";    // логин для OTA-обновлений
-const char* update_password = "admin";    // пароль для OTA-обновлений
-~~~
 
 **Для удобства прошивки через браузер рекомендуется выбрать уникальное имя для каждой ESP-01**
 ~~~ C
