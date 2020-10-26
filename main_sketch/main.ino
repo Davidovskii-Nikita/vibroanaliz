@@ -194,8 +194,6 @@ void post_json(void)
         String buffer;
         DynamicJsonDocument jsonDocument(capacity);
         jsonDocument["MAC"] = MAC;
-        jsonDocument["CAP"] = capacity;
-        jsonDocument["MEM"] = ESP.getMaxFreeBlockSize();
         JsonArray Axel_time = jsonDocument.createNestedArray("Axel_time");
         JsonArray Axel = jsonDocument.createNestedArray("Axel");
         JsonArray Temp_time = jsonDocument.createNestedArray("Temp_time");
