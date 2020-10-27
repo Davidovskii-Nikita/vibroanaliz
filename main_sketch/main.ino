@@ -96,7 +96,7 @@ void setup()
         break;
   }
 
-  Wire.begin(0,2);
+  Wire.begin(2,0);
   Serial.begin(9600);
   WiFi.mode(WIFI_AP_STA);
   delay(10);
